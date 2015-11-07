@@ -16,25 +16,29 @@
       $(document).ready(function() {  
         // connect to sockets
         var socket = io.connect();
+        // prompts the user for a name and stores name in variable currentUser
         var currentUser = prompt('What is your name?');
-        // immediately emit the newUser event to notify the server that a new user has joined
+        // emitting event 'newUser' and passing user name to the server
         socket.emit('newUser', {name: currentUser});
-        // set up the logic to handle emitting to the server when a new message is sent
+        // function to be performed when message is submitted by the user
         $('#messageForm').submit(function() {
           event.preventDefault()
+          // setting variable 'message' equal to the name of the user plus a string, and the user's message entered
           var message = currentUser + ': ' + $('#messageInput').val();
+          // emitting event 'messageSubmit' and passing data stored in variable 'message' to the server
           socket.emit('messageSubmit', {message: message})
           $('#messageInput').val('');
         })
-        // Begin socket listeners
-        // listen for initial messages
+        // listening for event 'initialMessages' and obtaining data from server to display past messages to new user
         socket.on('initialMessages', function(data) {
+          // display old messages stored in 'messages' array to new user entering room
           for(message in data.messages) {
             $('#chatBox').append('<p>' + data.messages[message] + '</p>');
           }
         })
-        // listen for new messages
+        // listening for event 'newMessage' and obtaining data from server
         socket.on('newMessage', function(data) {
+          // add new message to display to users 
           $('#chatBox').append('<p>' + data.message + '</p>');
         })
       })
